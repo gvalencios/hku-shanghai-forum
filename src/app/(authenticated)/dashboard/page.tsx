@@ -117,10 +117,6 @@ function StudentDashboard({
         profile.arrivalFlight?.time,
         profile.arrivalFlight?.flightNumber,
         profile.visaStatus,
-        profile.emergencyContact?.name,
-        profile.emergencyContact?.relationship,
-        profile.emergencyContact?.phone,
-        profile.emergencyContact?.email,
       ]
     : [];
   const filledFields = fields.filter(Boolean).length;

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HKU Shanghai Forum — Student Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink:        #111118;
+      --ink-soft:   #3C3C44;
+      --ink-muted:  #7A7A85;
+      --rule:       #E2E2E8;
+      --bg:         #FAFAF8;
+      --cream:      #F4F1EB;
+      --red:        #C0262C;
+      --red-light:  #F9EDED;
+      --gold:       #B8872A;
+      --gold-light: #FBF5E8;
+      --blue:       #1A4F9C;
+      --blue-light: #EBF0FB;
+      --green:      #1A7A3C;
+      --green-light:#EBF7EF;
+      --orange:     #B85C10;
+      --orange-light:#FBF2E8;
+      --purple:     #6B38CC;
+      --purple-light:#F3EEFF;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── LAYOUT ── */
+    .wrap { max-width: 800px; margin: 0 auto; padding: 0 52px; }
+    @media (max-width: 600px) { .wrap { padding: 0 24px; } }
+
+    /* ── COVER ── */
+    .cover {
+      background: var(--ink);
+      color: #fff;
+      padding: 72px 52px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 90% 50%, rgba(192,38,44,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 10% 80%, rgba(184,135,42,0.12) 0%, transparent 60%);
+    }
+    .cover::after {
+      content: '';
+      position: absolute; top: 0; right: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--red) 0%, var(--gold) 100%);
+    }
+
+    /* Desktop: centred */
+    .cover-inner {
+      position: relative; z-index: 1;
+      max-width: 620px; margin: 0 auto;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .cover-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.45); margin-bottom: 18px;
+    }
+    .cover-eyebrow span { display: inline-block; width: 24px; height: 1px; background: rgba(255,255,255,0.25); }
+    .cover-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 56px; font-weight: 600; line-height: 1.06; letter-spacing: -0.5px;
+      color: #fff; margin-bottom: 10px;
+    }
+    .cover-title em { font-style: italic; color: rgba(255,255,255,0.65); }
+    .cover-sub {
+      font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.5);
+      margin-bottom: 28px;
+    }
+    .cover-meta {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; flex-wrap: wrap; margin-bottom: 0;
+    }
+    .cover-tag {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.65); padding: 5px 12px; border-radius: 4px;
+    }
+    .cover-tag.red {
+      background: rgba(192,38,44,0.25); border-color: rgba(192,38,44,0.5); color: #F08080;
+    }
+    .cover-access {
+      margin-top: 28px;
+      padding: 16px 24px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-top: 3px solid var(--red);
+      border-radius: 6px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 5px; width: 100%; max-width: 340px;
+    }
+    .cover-access-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+    .cover-url {
+      font-size: 16px; font-weight: 700; letter-spacing: 0.01em;
+      color: #fff; text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.35);
+      padding-bottom: 1px;
+    }
+    .cover-access-note {
+      margin-top: 6px;
+      font-size: 11px; color: rgba(255,255,255,0.7); letter-spacing: 0.02em;
+    }
+
+    /* Mobile: left-aligned */
+    @media (max-width: 600px) {
+      .cover { padding: 44px 24px 40px; }
+      .cover-inner { text-align: left; align-items: flex-start; max-width: 100%; }
+      .cover-title { font-size: 40px; }
+      .cover-meta { justify-content: flex-start; }
+      .cover-access { align-items: flex-start; max-width: 100%; }
+    }
+
+    /* ── TOC ── */
+    .toc-section { padding: 44px 0 36px; border-bottom: 1px solid var(--rule); }
+    .toc-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 600; letter-spacing: 0;
+      color: var(--ink); margin-bottom: 16px; text-transform: none;
+    }
+
+    /* 00 — Signing In prereq card */
+    .toc-prereq {
+      display: flex; align-items: center; gap: 16px;
+      padding: 12px 14px; border-radius: 8px;
+      background: transparent; border: 1px solid var(--rule);
+      text-decoration: none; color: inherit; margin-bottom: 6px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .toc-prereq:hover { background: var(--cream); border-color: var(--rule); }
+    .toc-prereq .toc-num { color: var(--ink-muted); }
+    .toc-prereq .toc-text { color: var(--ink-soft); }
+    .toc-prereq .toc-text small { color: var(--ink-muted); }
+    .toc-prereq-chip {
+      margin-left: auto; flex-shrink: 0;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      background: transparent; border: 1px solid var(--rule);
+      color: var(--ink-muted); padding: 3px 9px; border-radius: 20px;
+    }
+
+    /* Divider between prereq and features */
+    .toc-divider {
+      display: flex; align-items: center; gap: 12px; margin: 18px 0 14px;
+    }
+    .toc-divider-line { flex: 1; height: 1px; background: var(--rule); }
+    .toc-divider-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+
+    /* Features 2-col grid */
+    .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .toc-item { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 8px; border: 1px solid transparent; text-decoration: none; color: inherit; transition: background 0.15s, border-color 0.15s; cursor: pointer; }
+    .toc-item:hover { background: var(--cream); border-color: var(--rule); }
+    .toc-item:hover .toc-num { color: var(--ink-soft); }
+    .toc-item:hover .toc-text { color: var(--ink); }
+    .toc-num {
+      font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600;
+      color: var(--ink-muted); line-height: 1; min-width: 28px;
+    }
+    .toc-text { font-size: 15px; font-weight: 600; color: var(--ink-soft); }
+    .toc-text small { display: block; font-size: 12px; font-weight: 400; color: var(--ink-muted); margin-top: 2px; }
+
+    /* ── SECTIONS ── */
+    .section { padding: 48px 0; border-bottom: 1px solid var(--rule); }
+    .section:last-of-type { border-bottom: none; }
+    .section-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 26px; }
+    .section-num-block { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; margin-top: 4px; }
+    .section-num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; line-height: 1; color: var(--rule); }
+    .section-num-line { width: 1px; height: 18px; background: var(--rule); margin-top: 4px; }
+    .section-kicker { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; line-height: 1.1; letter-spacing: -0.2px; color: var(--ink); }
+    .section-desc { font-size: 13.5px; color: var(--ink-soft); margin-top: 6px; line-height: 1.6; }
+
+    /* ── LEAD ── */
+    .lead { font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; margin-bottom: 22px; }
+
+    /* ── STEPS ── */
+    .steps { margin: 20px 0; }
+    .step { display: flex; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--rule); }
+    .step:first-child { border-top: 1px solid var(--rule); }
+    .step-num { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--ink-muted); min-width: 18px; line-height: 1.4; flex-shrink: 0; }
+    .step-body { font-size: 13.5px; color: var(--ink-soft); line-height: 1.65; padding-top: 2px; }
+    .step-body strong { color: var(--ink); font-weight: 600; }
+
+    /* ── CALLOUTS ── */
+    .callout { display: flex; gap: 12px; padding: 13px 15px; border-radius: 8px; margin: 14px 0; font-size: 13px; line-height: 1.6; }
+    .callout.info    { background: var(--blue-light);   border-left: 3px solid var(--blue); }
+    .callout.warning { background: var(--red-light);    border-left: 3px solid var(--red); }
+    .callout.tip     { background: var(--gold-light);   border-left: 3px solid var(--gold); }
+    .callout.success { background: var(--green-light);  border-left: 3px solid var(--green); }
+    .callout-icon { font-size: 15px; flex-shrink: 0; line-height: 1.6; }
+    .callout-body { color: var(--ink-soft); }
+    .callout-body strong { color: var(--ink); }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-block; padding: 2px 7px; border-radius: 4px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.01em;
+    }
+    .tag.req    { background: var(--red-light);    color: var(--red); }
+    .tag.opt    { background: var(--cream);         color: var(--ink-muted); border: 1px solid var(--rule); }
+    .tag.blue   { background: var(--blue-light);   color: var(--blue); }
+    .tag.green  { background: var(--green-light);  color: var(--green); }
+    .tag.gold   { background: var(--gold-light);   color: var(--gold); }
+    .tag.orange { background: var(--orange-light); color: var(--orange); }
+    .tag.grey   { background: var(--cream);         color: var(--ink-muted); border: 1px solid var(--rule); }
+    .tag.red    { background: var(--red-light);    color: var(--red); }
+    .tag.purple { background: var(--purple-light); color: var(--purple); }
+
+    /* ── ACCESS TIP ── */
+    .access-tip {
+      display: flex; align-items: flex-start; gap: 12px;
+      margin: 24px 0 32px;
+      padding: 13px 16px; border-radius: 10px;
+      background: var(--blue-light); border: 1px solid rgba(26,79,156,0.15);
+      font-size: 13px; color: var(--ink-soft); line-height: 1.55;
+    }
+    .access-tip-icons { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── PROFILE CARDS ── */
+    .profile-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+    @media (max-width: 520px) { .profile-sections { grid-template-columns: 1fr; } }
+    .profile-card {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px 16px; border-radius: 10px;
+      background: var(--cream); border: 1px solid var(--rule);
+    }
+    .profile-card--required {
+      background: var(--red-light);
+      border-color: rgba(192,38,44,0.2);
+      border-left: 3px solid var(--red);
+    }
+    .profile-card-icon { font-size: 18px; line-height: 1; margin-top: 2px; flex-shrink: 0; }
+    .profile-card-title {
+      font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 4px;
+    }
+    .profile-card-badge {
+      display: inline-block; margin-bottom: 6px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      background: var(--red); color: #fff;
+      padding: 2px 7px; border-radius: 4px;
+    }
+    .profile-card-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.55; }
+
+    /* ── FIELD GROUPS ── */
+    .field-group { margin: 20px 0; }
+    .field-group-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink-muted); padding-bottom: 8px; border-bottom: 1.5px solid var(--rule);
+      margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .field-group-label .hl { color: var(--red); }
+    .field-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 7px 0; border-bottom: 1px dotted var(--rule); gap: 12px;
+    }
+    .field-row:last-child { border-bottom: none; }
+    .field-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+    .field-hint { font-size: 12px; color: var(--ink-muted); text-align: right; flex-shrink: 0; }
+
+    /* ── STAT BOXES ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+    .stat-box { background: var(--cream); border-radius: 10px; padding: 15px 16px; }
+    .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 3px; }
+    .stat-title { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+    .stat-desc { font-size: 12px; color: var(--ink-muted); line-height: 1.5; }
+
+    /* ── CATEGORY PILLS ── */
+    .cat-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+    .cat-pill {
+      display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+      border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid;
+    }
+    .cat-pill .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── TABLE ── */
+    .data-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+    .data-table th {
+      text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-muted); padding: 8px 12px;
+      background: var(--cream); border-bottom: 1px solid var(--rule);
+    }
+    .data-table th:first-child { border-radius: 6px 0 0 0; }
+    .data-table th:last-child  { border-radius: 0 6px 0 0; }
+    .data-table td { padding: 9px 12px; border-bottom: 1px solid var(--rule); color: var(--ink-soft); vertical-align: top; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table td strong { color: var(--ink); font-weight: 600; }
+
+    /* ── FOOTER ── */
+    .footer {
+      padding: 28px 0; display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--ink-muted); border-top: 1px solid var(--rule); margin-top: 4px;
+    }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 600; color: var(--ink); }
+
+    /* ── PRINT ── */
+    @media print {
+      @page { margin: 16mm 18mm; size: A4; }
+      body { font-size: 12.5px; }
+      .cover { padding: 44px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .wrap { padding: 0; }
+      .toc-section { page-break-after: always; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-eyebrow"><span></span> Student Reference Guide <span></span></div>
+    <div class="cover-title">HKU Shanghai<br><em>Forum</em></div>
+    <div class="cover-sub">Everything you need to navigate the trip platform</div>
+    <div class="cover-meta">
+      <div class="cover-tag">AILT1001-2S</div>
+      <div class="cover-tag red">Shanghai Study Trip · March 2026</div>
+    </div>
+    <div class="cover-access">
+      <div class="cover-access-label">Access the forum at</div>
+      <a href="https://hku-shanghai-forum.vercel.app/" class="cover-url">hku-shanghai-forum.vercel.app</a>
+      <div class="cover-access-note">Can be accessed on desktop and mobile · No app required</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- TOC -->
+  <div class="toc-section">
+    <div class="toc-label">Quick Access</div>
+
+    <!-- 00 Signing In — prerequisite -->
+    <a href="#section-00" class="toc-prereq">
+      <div class="toc-num">00</div>
+      <div class="toc-text">Signing In<small>HKU email + Student ID</small></div>
+    </a>
+
+    <!-- Features divider -->
+    <div class="toc-divider">
+      <div class="toc-divider-line"></div>
+      <div class="toc-divider-label">Features</div>
+      <div class="toc-divider-line"></div>
+    </div>
+
+    <!-- 01–05 Features grid -->
+    <div class="toc-grid">
+      <a href="#section-01" class="toc-item">
+        <div class="toc-num">01</div>
+        <div class="toc-text">Dashboard<small>Your personal overview screen</small></div>
+      </a>
+      <a href="#section-02" class="toc-item">
+        <div class="toc-num">02</div>
+        <div class="toc-text">Profile<small>Flight, visa &amp; emergency info</small></div>
+      </a>
+      <a href="#section-03" class="toc-item">
+        <div class="toc-num">03</div>
+        <div class="toc-text">Checkpoints<small>Confirm trip milestones</small></div>
+      </a>
+      <a href="#section-04" class="toc-item">
+        <div class="toc-num">04</div>
+        <div class="toc-text">Reports<small>Submit issues to your TA</small></div>
+      </a>
+      <a href="#section-05" class="toc-item">
+        <div class="toc-num">05</div>
+        <div class="toc-text">Info Hub<small>Course &amp; trip information</small></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- 01 SIGN IN -->
+  <div id="section-00" class="section">
+    <div class="section-header">
+      <div class="section-num-block">
+        <div class="section-num">00</div>
+        <div class="section-num-line"></div>
+      </div>
+      <div>
+        <div class="section-kicker">Getting Started</div>
+        <div class="section-title">Signing In</div>
+        <div class="section-desc">Sign in directly with your HKU email address and Student / Staff ID — no password, no email link needed.</div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">Only <strong>@hku.hk</strong> and <strong>@connect.hku.hk</strong> email addresses are accepted. Personal Gmail or other addresses will be rejected.</div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">Go to <a href="https://hku-shanghai-forum.vercel.app/" style="color:var(--blue);font-weight:600;">hku-shanghai-forum.vercel.app</a> and enter your <strong>HKU email address</strong>. Use your <strong>original HKU email</strong> (e.g. u36xxxxx@connect.hku.hk) — not one you may have changed or updated afterwards.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">Enter your <strong>Student / Staff ID</strong> (e.g. 3035XXXXXX). Both fields are required before the Sign in button becomes active.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">Click <strong>Sign in</strong>. Your credentials are verified instantly and you are redirected to your Dashboard.</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">Your Student / Staff ID is the number on your HKU student card (e.g. 3035XXXXXX). If you cannot log in, contact your TA to confirm your ID is registered in the system.</div>
+    </div>
+  </div>
+
+  <!-- 02 DASHBOARD -->
+  <div id="section-01" class="section">
+    <div class="section-header">
+      <div class="section-num-block">
+        <div class="section-num">01</div>
+        <div class="section-num-line"></div>
+      </div>
+      <div>
+        <div class="section-kicker">Home Screen</div>
+        <div class="section-title">Dashboard</div>
+        <div class="section-desc">After signing in you land here — a snapshot of your trip preparation status at a glance.</div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">🔴</div>
+      <div class="callout-body">
+        <strong>Action Required banner</strong> — A red warning banner appears at the top of your dashboard if your <strong>Flight Information</strong> or <strong>Visa Status</strong> is incomplete. Click <em>Complete Now</em> to jump straight to the relevant section in your profile.
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="stat-box">
+        <div class="stat-label">Profile %</div>
+        <div class="stat-title">Completion score</div>
+        <div class="stat-desc">Percentage of required profile fields filled in. Tap to go to your Profile page.</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Checkpoints</div>
+        <div class="stat-title">X / Y Completed</div>
+        <div class="stat-desc">Trip milestones you have checked in for out of the total. Tap to go to Checkpoints.</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Reports</div>
+        <div class="stat-title">Open count</div>
+        <div class="stat-desc">How many of your submitted reports are still open or being handled by your TA.</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Next Checkpoint</div>
+        <div class="stat-title">Your next milestone</div>
+        <div class="stat-desc">Shows the next uncompleted checkpoint. Tap <em>Go to Checkpoints</em> to check in.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 PROFILE -->
+  <div id="section-02" class="section">
+    <div class="section-header">
+      <div class="section-num-block">
+        <div class="section-num">02</div>
+        <div class="section-num-line"></div>
+      </div>
+      <div>
+        <div class="section-kicker">Trip Preparation</div>
+        <div class="section-title">Your Profile</div>
+        <div class="section-desc">Fill in your flight details, visa status, emergency contact, and health information. Your university info (name, faculty, student ID, etc.) is pre-filled by your TA from the class list — you cannot edit those fields.</div>
+      </div>
+    </div>
+
+    <div class="profile-sections">
+      <div class="profile-card profile-card--required">
+        <div class="profile-card-icon">✈️</div>
+        <div class="profile-card-body">
+          <div class="profile-card-title">Flight Information</div>
+          <div class="profile-card-badge">Must complete</div>
+          <div class="profile-card-desc">Ticket purchase status, departure flight (HKG → PVG), and return flight (PVG → HKG) — date, time, and flight number for each.</div>
+        </div>
+      </div>
+      <div class="profile-card profile-card--required">
+        <div class="profile-card-icon">🛂</div>
+        <div class="profile-card-body">
+          <div class="profile-card-title">Visa Information</div>
+          <div class="profile-card-badge">Must complete</div>
+          <div class="profile-card-desc">Your current visa status (Not Started / In Progress / Approved / Not Required) and an optional notes field.</div>
+        </div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-icon">🆘</div>
+        <div class="profile-card-body">
+          <div class="profile-card-title">Emergency Contact <span class="tag opt">Optional</span></div>
+          <div class="profile-card-desc">Name, relationship, phone, and email of someone we can reach in an emergency.</div>
+        </div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-icon">🏥</div>
+        <div class="profile-card-body">
+          <div class="profile-card-title">Health &amp; Dietary <span class="tag opt">Optional</span></div>
+          <div class="profile-card-desc">Any dietary restrictions or medical conditions your TA should be aware of. Leave blank if none.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <div class="callout-body">Flight and visa fields count toward your profile completion %. Always tap <strong>Save Changes</strong> after editing.</div>
+    </div>
+
+  </div>
+
+  <!-- 04 CHECKPOINTS -->
+  <div id="section-03" class="section">
+    <div class="section-header">
+      <div class="section-num-block">
+        <div class="section-num">03</div>
+        <div class="section-num-line"></div>
+      </div>
+      <div>
+        <div class="section-kicker">Trip Milestones</div>
+        <div class="section-title">Checkpoints</div>
+        <div class="section-desc">Confirm each milestone as you complete it. Your TA monitors these in real time to ensure everyone is safe and on track.</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">Open the <strong>Checkpoints</strong> page from the navigation menu.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">Find the relevant checkpoint and tap <strong>Check in</strong>. The circle turns green with a checkmark to confirm.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">Tapped by mistake? Tap <strong>Undo</strong> on a checked item to remove your check-in.</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px; color:var(--ink-muted); margin-bottom:8px;">Checkpoints are grouped into five phases:</p>
+    <div class="cat-grid">
+      <div class="cat-pill" style="background:var(--purple-light); border-color:#D4B8FF; color:var(--purple);">
+        <div class="dot" style="background:var(--purple);"></div> Pre-Departure
+      </div>
+      <div class="cat-pill" style="background:var(--orange-light); border-color:#F5C890; color:var(--orange);">
+        <div class="dot" style="background:var(--orange);"></div> Day of Travel
+      </div>
+      <div class="cat-pill" style="background:var(--green-light); border-color:#A8D8B9; color:var(--green);">
+        <div class="dot" style="background:var(--green);"></div> Arrival
+      </div>
+      <div class="cat-pill" style="background:var(--blue-light); border-color:#AFC5EE; color:var(--blue);">
+        <div class="dot" style="background:var(--blue);"></div> During Trip
+      </div>
+      <div class="cat-pill" style="background:var(--red-light); border-color:#F0B0B2; color:var(--red);">
+        <div class="dot" style="background:var(--red);"></div> Return
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>Checkpoint</th><th>When to check in</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><strong>Flight ticket purchased</strong></td><td>Before trip — once your flights are booked</td></tr>
+        <tr><td>2</td><td><strong>Boarded departure flight</strong></td><td>Day of travel — when you've boarded at HKIA</td></tr>
+        <tr><td>3</td><td><strong>Landed at Shanghai Pudong International Airport</strong></td><td>Upon landing at PVG</td></tr>
+        <tr><td>4</td><td><strong>Passed immigration/customs</strong></td><td>After clearing Shanghai customs</td></tr>
+        <tr><td>5</td><td><strong>Arrived at university/dorm</strong></td><td>When you reach the accommodation</td></tr>
+        <tr><td>6</td><td><strong>Checked into dorm room</strong></td><td>Once you have your room key and are settled in</td></tr>
+        <tr><td>7</td><td><strong>Daily check-in</strong> &nbsp;<span class="tag blue">Daily</span></td><td>Every day during the 5-day programme</td></tr>
+        <tr><td>8</td><td><strong>Boarded return flight</strong></td><td>When you've boarded your flight back to HKG</td></tr>
+        <tr><td>9</td><td><strong>Arrived back in Hong Kong</strong></td><td>Once you have landed safely at HKIA</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <div class="callout-icon">🔁</div>
+      <div class="callout-body"><strong>Daily check-in</strong> resets every day. Check in once each morning during the trip to confirm you are present and safe. Your TA will monitor this daily.</div>
+    </div>
+  </div>
+
+  <!-- 05 REPORTS -->
+  <div id="section-04" class="section">
+    <div class="section-header">
+      <div class="section-num-block">
+        <div class="section-num">04</div>
+        <div class="section-num-line"></div>
+      </div>
+      <div>
+        <div class="section-kicker">Issues &amp; Incidents</div>
+        <div class="section-title">Reports</div>
+        <div class="section-desc">Use reports to notify your TA of any problems, concerns, or requests during the trip. All reports are private between you and your TA.</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">Go to <strong>Reports</strong> in the navigation and tap <strong>New Report</strong>.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">Enter a short <strong>Title</strong> (e.g. "Lost luggage at PVG") and a detailed <strong>Description</strong> with as much context as possible.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">Tap <strong>Submit Report</strong>. Your TA will be notified and will reply as soon as possible.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">Check your report for TA replies. The status updates as your TA handles it: <span class="tag orange">Open</span> → <span class="tag blue">In Progress</span> → <span class="tag green">Resolved</span>.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">If you submitted a report by mistake and it's still <span class="tag orange">Open</span>, you can tap <strong>Cancel Report</strong> from the report detail page.</div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">🚨</div>
+      <div class="callout-body">
+        <strong>Life-threatening emergencies — call local services first:</strong><br/>
+        <strong>110</strong> Police &nbsp;·&nbsp; <strong>120</strong> Ambulance &nbsp;·&nbsp; <strong>119</strong> Fire &nbsp;(China mainland)<br/>
+        Then submit a report on the platform to alert your TA.
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 INFO HUB -->
+  <div id="section-05" class="section">
+    <div class="section-header">
+      <div class="section-num-block">
+        <div class="section-num">05</div>
+        <div class="section-num-line"></div>
+      </div>
+      <div>
+        <div class="section-kicker">Course Information</div>
+        <div class="section-title">Info Hub</div>
+        <div class="section-desc">All important trip and course information published by your TA, organized by category. Go to <strong>Info</strong> in the navigation to browse.</div>
+      </div>
+    </div>
+
+    <p class="lead">Use the category tabs at the top to filter by topic. Each block shows a title, body text, and optional clickable links. Your TA may add or update blocks throughout the trip — check back regularly.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Category</th><th>What you'll find</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Overview</strong></td><td>Course description, learning objectives, and key programme details</td></tr>
+        <tr><td><strong>Schedule</strong></td><td>Daily timetable and activity programme for each of the 5 days</td></tr>
+        <tr><td><strong>Assessment</strong></td><td>Grading breakdown, deliverables, poster exhibition details, and submission requirements</td></tr>
+        <tr><td><strong>Contacts</strong></td><td>TA and course coordinator contact details</td></tr>
+        <tr><td><strong>Rules</strong></td><td>Attendance policy, conduct expectations, and subsidy conditions</td></tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div>
+      <div class="footer-logo">HKU Shanghai Forum</div>
+      <div style="font-size:11px; margin-top:2px;">AILT1001-2S &nbsp;·&nbsp; Shanghai Study Trip, March 2026</div>
+    </div>
+    <div style="text-align:right; font-size:11px; line-height:1.8;">
+      For technical issues, contact your TA.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

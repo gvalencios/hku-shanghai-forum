@@ -1,55 +1,150 @@
-# Shanghai Forum - HKU Trip Management
+# HKU Shanghai Forum - Trip Management
 
 ## Overview
-Trip management website for ~100 HKU students traveling to Shanghai. Two role-based views (Student / TA) covering: student profiles with Excel bulk import, trip checkpoint monitoring, incident/report system with TA triage, and an information hub.
+Trip management website for ~100 HKU students travelling to Shanghai (AILT1001-2S, March 2026). Two role-based views (Student / TA) covering: student profiles with Excel bulk import, trip checkpoint monitoring, incident/report system with TA triage, and an information hub.
 
 ## Tech Stack
 - **Framework**: Next.js 16 App Router + TypeScript
 - **Database**: Firebase Firestore
-- **Auth**: Firebase Auth (magic link / email link) + `next-firebase-auth-edge` for middleware
-- **Hosting**: Vercel (free tier)
+- **Auth**: Custom JWT (HKU email + Student/Staff ID → `/api/login` → JWT cookie)
+- **Hosting**: Vercel (free tier) — deployed
 - **Styling**: Tailwind CSS v4 (Apple-style design tokens)
 - **Excel**: ExcelJS
 - **Drag-and-drop**: @dnd-kit/core + @dnd-kit/sortable
 - **Utilities**: clsx + tailwind-merge
 
 ## Current Status
-**ALL PHASES COMPLETE** - All code is built and compiles (19 routes).
+**DEPLOYED** — All 19 routes built and live on Vercel. Firebase project: `hku-shanghai-portal`.
 
-Remaining manual steps:
-1. Firebase console: Create project, enable Firestore + Auth (Email Link provider)
-2. Copy Firebase config values into `.env.local`
-3. Deploy Firestore security rules (`firestore.rules`)
-4. Vercel: Connect GitHub repo, set env vars, deploy
-5. Add Vercel domain to Firebase authorized domains
+Completed manual steps:
+1. ✅ Firebase project created, Firestore + Auth (Email Link) enabled
+2. ✅ `.env.local` configured with all keys
+3. ✅ Firestore security rules deployed (`firebase deploy --only firestore:rules`)
+4. ✅ Vercel deployment connected to GitHub, env vars set
+5. ✅ Vercel domain added to Firebase authorized domains
 
 ## Architecture
-- **Auth flow**: Magic link email -> `/login/callback` -> set claims -> redirect to `/dashboard`
+- **Auth flow**: HKU email + Student/Staff ID → POST `/api/login` → JWT cookie → redirect to `/dashboard`
 - **Role assignment**: TA emails defined in `TA_EMAILS` env var; all others are students
 - **Email domains**: Only `@hku.hk` and `@connect.hku.hk` accepted
-- **Route protection**: Middleware via `next-firebase-auth-edge`; `/ta/*` routes restricted to TA role
-- **Firestore collections**: `users`, `emailStudentMap`, `checkpoints`, `checkins`, `reports`, `reports/{id}/replies`, `contactPersons`, `infoBlocks`
+- **Route protection**: Middleware (`middleware.ts`) checks JWT; `/ta/*` routes restricted to TA role
+- **Firestore collections**: `users`, `emailStudentMap`, `checkpoints`, `checkins`, `reports`, `reports/{id}/replies`, `contactPersons`, `infoBlocks`, `settings/infoCategories`
+
+## Student-Facing Features
+
+### Login
+- Enter HKU email (@hku.hk or @connect.hku.hk) + Student/Staff ID
+- Click Sign in → server validates credentials → JWT cookie set → redirected to `/dashboard`
+- No email sent, no magic link, no callback page
+
+### Dashboard (`/dashboard`)
+- **3 stat cards**: Profile % complete, Checkpoints (X/Y), Open Reports count
+- **Action Required banner** (red): shown when `flightTicketStatus`, any departure/return flight field, or `visaStatus` is missing → links to `/profile`
+- **Next Checkpoint card**: shows next unchecked checkpoint with "Go to Checkpoints" button
+
+### Profile (`/profile`)
+**TA-managed fields (read-only, pre-filled from Excel):**
+familyNameEn, firstNameEn, fullChineseName, gender, faculty, studentId, passportCountry, hasChinaBankAccount, telephone, specialRequest
+
+**Student-managed fields (editable, 8 required for profile %)**:
+
+| Section | Field | Type | Required |
+|---------|-------|------|----------|
+| Flight Information | flightTicketStatus | select: Purchased / Not Purchased | ✅ |
+| Flight Information | departureFlight.date | date | ✅ |
+| Flight Information | departureFlight.time | time | ✅ |
+| Flight Information | departureFlight.flightNumber | text | ✅ |
+| Flight Information | arrivalFlight.date | date | ✅ |
+| Flight Information | arrivalFlight.time | time | ✅ |
+| Flight Information | arrivalFlight.flightNumber | text | ✅ |
+| Visa Information | visaStatus | select: Not Started / In Progress / Approved / Not Required | ✅ |
+| Visa Information | visaNotes | textarea | optional |
+| Emergency Contact | emergencyContact.name | text | optional |
+| Emergency Contact | emergencyContact.relationship | text | optional |
+| Emergency Contact | emergencyContact.phone | tel | optional |
+| Emergency Contact | emergencyContact.email | email | optional |
+| Health & Dietary | dietaryRestrictions | textarea | optional |
+| Health & Dietary | medicalConditions | textarea | optional |
+
+### Checkpoints (`/checkpoints`)
+- Grouped by 5 categories: Pre-Departure, Day of Travel, Arrival, During Trip, Return
+- Each card: order number, category tag (coloured pill), name, description
+- **Check in** button → creates checkin record in Firestore
+- **Undo** button → deletes checkin record
+- Recurring checkpoints (Daily check-in) use `recurringDate` field (YYYY-MM-DD)
+
+**Active checkpoints (9):**
+1. Flight ticket purchased (Pre-Departure)
+2. Boarded departure flight (Day of Travel)
+3. Landed at Shanghai Pudong International Airport (Arrival)
+4. Passed immigration/customs (Arrival)
+5. Arrived at university/dorm (Arrival)
+6. Checked into dorm room (Arrival)
+7. Daily check-in — recurring (During Trip)
+8. Boarded return flight (Return)
+9. Arrived back in Hong Kong (Return)
+
+### Reports (`/reports`)
+- List of own reports with status badges
+- New report: Title + Description fields → status auto-set to "open"
+- Report detail: view description, status, TA replies
+- Cancel report: only if status === "open" and own report
+
+### Info Hub (`/info`)
+- Title: "Trip Information"
+- Tab-filtered by category (dynamic, stored in `settings/infoCategories` Firestore doc)
+- Active categories: Overview, Schedule, Assessment, Contacts, Rules
+- Only published blocks shown; links auto-prefixed with `https://` if no protocol
+
+## TA-Facing Features
+
+### Students (`/ta/students`)
+- Full student table with columns: Name, Email, Student ID, Faculty, Gender, Passport Country, China Bank, Telephone, Special Request, Visa, Flight Ticket, Departure Flight, Return Flight
+- Click row → student detail page (`/ta/students/[studentId]`)
+- **Excel upload**: preview (shows added + deleted students) → confirm → upsert/delete in Firestore
+  - Deletes students NOT in new Excel file from both `users` and `emailStudentMap` collections
+  - Preserves student-entered fields (flights, visa, etc.) on update
+
+### Checkpoints (`/ta/checkpoints`)
+- **Matrix View**: student × checkpoint grid showing check-in status
+- **Manage tab**: list with coloured category pills, edit/delete, up/down reorder (per-category)
+- Add/edit checkpoint form: name, description, category, order, recurring toggle
+- Auto-renumbers on create (shifts conflicting orders) and delete
+
+### Reports (`/ta/reports`)
+- All student reports with filters (status, importance)
+- Triage: set status (open/in_progress/resolved/cancelled), importance (low/medium/high/urgent), assign contact persons
+- Reply thread on each report
+
+### Contacts (`/ta/contacts`)
+- Manage contact person cards (name, role, phone, email, notes)
+
+### Info Hub (`/ta/info`)
+- Manage Sections: add/remove dynamic categories (stored in Firestore)
+- Per-block: title, body, category, published toggle, links (label + URL pairs), reorder up/down
+- Preview mode filtered by tab; arrows hidden on "All" tab
 
 ## Routes (19 total)
 ```
 /                           - Redirect to /dashboard or /login
-/login                      - Magic link email form
-/login/callback             - Complete sign-in flow
-/api/admin/set-claims       - Role assignment + data linking
-/api/admin/upload-students  - Excel upload endpoint
+/login                      - HKU email + Student/Staff ID login form
+/api/login                  - Validate credentials, set JWT cookie
+/api/admin/upload-students  - Excel upload (preview + confirm modes)
+/api/admin/seed-info        - Seed info blocks (?force=true to re-seed)
 /dashboard                  - Role-based dashboard (student/TA)
-/profile                    - Student profile (view TA fields + edit own)
-/checkpoints                - Student checkpoint list with check-in
+/profile                    - Student profile (TA fields read-only + edit own)
+/checkpoints                - Student checkpoint list with check-in/undo
 /reports                    - Student reports list
 /reports/new                - Create new report
-/reports/[reportId]         - Report detail + replies
-/info                       - Student info browser
+/reports/[reportId]         - Report detail + replies + cancel
+/info                       - Student info hub (tab-filtered)
 /ta/students                - Student management + Excel upload
+/ta/students/[studentId]    - Student detail (all fields)
 /ta/checkpoints             - Checkpoint management + matrix view
 /ta/reports                 - All reports with filters + triage
 /ta/reports/[reportId]      - Report triage (status, importance, contacts)
 /ta/contacts                - Contact persons management
-/ta/info                    - Info blocks management
+/ta/info                    - Info blocks management + section management
 ```
 
 ## File Structure
@@ -57,8 +152,8 @@ Remaining manual steps:
 src/
 ├── app/
 │   ├── layout.tsx, page.tsx, globals.css
-│   ├── login/ (page, callback)
-│   ├── api/admin/ (set-claims, upload-students)
+│   ├── login/ (page)
+│   ├── api/ (login, admin/upload-students, admin/seed-info)
 │   └── (authenticated)/
 │       ├── layout.tsx, error.tsx
 │       ├── dashboard/ (page, loading)
@@ -66,31 +161,31 @@ src/
 │       ├── checkpoints/ (page, loading)
 │       ├── reports/ (page, loading, new, [reportId])
 │       ├── info/ (page)
-│       └── ta/ (layout, students, checkpoints, reports, contacts, info)
+│       └── ta/ (layout, students/page, students/[studentId], checkpoints, reports, reports/[reportId], contacts, info)
 ├── components/
 │   ├── auth/AuthProvider.tsx
 │   ├── layout/ (AppShell, Header)
-│   ├── ui/ (15 components + barrel export)
+│   ├── ui/ (Badge, Button, Card, DataTable, EmptyState, FileUpload, Input, Modal, Select, Spinner, Tabs, Textarea, Toast — barrel export)
 │   ├── profile/ (ProfileView, ProfileEditForm)
 │   ├── students/ (ExcelUpload, StudentList)
 │   ├── checkpoints/ (CheckpointList, CheckpointMatrix, CheckpointForm)
 │   └── reports/ (ReportCard, ReplyThread, ReportFilters)
 └── lib/
-    ├── firebase/ (client, admin, auth-config)
+    ├── firebase/ (client, admin)
     ├── hooks/ (use-auth, use-firestore)
     ├── types/ (user, checkpoint, report, info)
     ├── utils/ (cn)
-    ├── firestore/ (users, checkpoints, checkins, reports, contact-persons, info-blocks)
-    └── excel/ (parse-students)
+    └── firestore/ (users, checkpoints, checkins, reports, contact-persons, info-blocks, info-categories)
 ```
 
 ## Common Commands
 ```bash
-npm run dev      # Start dev server
-npm run build    # Production build
-npm run lint     # ESLint
+npm run dev                              # Start dev server (localhost:3000)
+npm run build                            # Production build
+npm run lint                             # ESLint
+firebase deploy --only firestore:rules   # Deploy Firestore security rules
+git add . && git commit -m "..." && git push  # Deploy to Vercel (auto on push)
 ```
 
-## Detailed Progress
-See `docs/PROGRESS.md` for task-level tracking.
-See `docs/PLAN.md` for the original implementation plan.
+# currentDate
+Today's date is 2026-02-23.
