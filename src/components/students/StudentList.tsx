@@ -81,6 +81,17 @@ export function StudentList({ students, onRowClick }: StudentListProps) {
       },
     },
     {
+      key: "flightTicketStatus",
+      header: "Flight Ticket",
+      render: (row: UserDocument) => {
+        if (row.flightTicketStatus === "purchased")
+          return <span className="text-[#30D158] text-[13px] font-medium">Purchased</span>;
+        if (row.flightTicketStatus === "not_purchased")
+          return <span className="text-[#FF3B30] text-[13px] font-medium">Not Purchased</span>;
+        return <span className="text-[#86868B]">—</span>;
+      },
+    },
+    {
       key: "departureFlight",
       header: "Departure Flight",
       render: (row: UserDocument) => <FlightCell flight={row.departureFlight} />,

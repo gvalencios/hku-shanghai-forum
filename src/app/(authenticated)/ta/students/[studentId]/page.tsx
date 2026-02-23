@@ -137,6 +137,17 @@ export default function TAStudentDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              {/* Row 1: ticket + visa status */}
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Flight Ticket</p>
+                <p className="mt-0.5 text-[14px]">
+                  {student.flightTicketStatus === "purchased"
+                    ? <span className="text-[#30D158]">Purchased</span>
+                    : student.flightTicketStatus === "not_purchased"
+                    ? <span className="text-[#FF3B30]">Not Purchased</span>
+                    : <span className="text-[#86868B]">—</span>}
+                </p>
+              </div>
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Visa Status</p>
                 <div className="mt-1">
@@ -149,16 +160,16 @@ export default function TAStudentDetailPage() {
                   )}
                 </div>
               </div>
-              <Field label="Visa Notes" value={student.visaNotes} />
-              <Field
-                label="Departure Flight"
-                value={formatFlight(student.departureFlight)}
-              />
-              <Field
-                label="Return Flight"
-                value={formatFlight(student.arrivalFlight)}
-              />
+              {/* Row 2: flights */}
+              <Field label="Departure Flight" value={formatFlight(student.departureFlight)} />
+              <Field label="Return Flight" value={formatFlight(student.arrivalFlight)} />
             </div>
+            {/* Visa notes only if filled */}
+            {student.visaNotes && (
+              <div className="mt-4 border-t border-[#F5F5F7] pt-4">
+                <Field label="Visa Notes" value={student.visaNotes} />
+              </div>
+            )}
           </CardContent>
         </Card>
 

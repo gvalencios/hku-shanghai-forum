@@ -20,6 +20,7 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
 
+  const [flightTicketStatus, setFlightTicketStatus] = useState(user.flightTicketStatus ?? "");
   const [departureFlight, setDepartureFlight] = useState(user.departureFlight ?? { date: "", time: "", flightNumber: "" });
   const [arrivalFlight, setArrivalFlight] = useState(user.arrivalFlight ?? { date: "", time: "", flightNumber: "" });
   const [visaStatus, setVisaStatus] = useState(user.visaStatus ?? "");
@@ -32,6 +33,7 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
     setSaving(true);
     try {
       const data: Partial<UserDocument> = {
+        flightTicketStatus,
         departureFlight,
         arrivalFlight,
         visaStatus,
@@ -65,6 +67,16 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
+          <Select
+            label="Flight Ticket Status"
+            value={flightTicketStatus}
+            onChange={(e) => setFlightTicketStatus(e.target.value)}
+            placeholder="Select status"
+            options={[
+              { value: "purchased", label: "Purchased" },
+              { value: "not_purchased", label: "Not Purchased" },
+            ]}
+          />
           <div>
             <p className="mb-3 text-[13px] font-medium text-[#6E6E73]">Departure Flight</p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

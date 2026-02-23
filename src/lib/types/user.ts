@@ -34,6 +34,7 @@ export interface UserDocument {
   specialRequest: string;
 
   // Student-managed fields
+  flightTicketStatus: string;
   departureFlight: FlightInfo;
   arrivalFlight: FlightInfo;
   visaStatus: string;

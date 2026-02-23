@@ -109,6 +109,7 @@ function StudentDashboard({
   // Profile completion — all student-fillable fields (visa notes excluded as optional)
   const fields = profile
     ? [
+        profile.flightTicketStatus,
         profile.departureFlight?.date,
         profile.departureFlight?.time,
         profile.departureFlight?.flightNumber,
@@ -127,7 +128,8 @@ function StudentDashboard({
 
   // Incomplete section detection
   const flightIncomplete = profile
-    ? !profile.departureFlight?.date ||
+    ? !profile.flightTicketStatus ||
+      !profile.departureFlight?.date ||
       !profile.departureFlight?.time ||
       !profile.departureFlight?.flightNumber ||
       !profile.arrivalFlight?.date ||
