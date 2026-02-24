@@ -15,8 +15,8 @@ const VALID_DOMAINS = ["hku.hk", "connect.hku.hk"];
 const SESSION_COOKIE_OPTIONS = {
   path: "/",
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
+  secure: true,
+  sameSite: "none" as const,
   maxAge: 60 * 60 * 24 * 12, // 12 days
 };
 
