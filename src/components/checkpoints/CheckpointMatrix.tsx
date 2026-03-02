@@ -43,10 +43,13 @@ export function CheckpointMatrix({
             {checkpoints.map((cp) => (
               <th
                 key={cp.id}
-                className="px-2 py-2.5 text-center font-semibold text-[#86868B] min-w-[40px]"
-                title={cp.name}
+                className="group relative px-2 py-2.5 text-center font-semibold text-[#86868B] min-w-[40px]"
               >
-                <span className="block max-w-[60px] truncate">{cp.order}</span>
+                <span className="block max-w-[60px] truncate cursor-default">{cp.order}</span>
+                <div className="pointer-events-none absolute left-1/2 top-full z-30 -translate-x-1/2 mt-1 whitespace-nowrap rounded-lg bg-[#1D1D1F] px-2.5 py-1.5 text-[11px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                  {cp.name}
+                  <div className="absolute left-1/2 -top-1 -translate-x-1/2 h-2 w-2 rotate-45 bg-[#1D1D1F]" />
+                </div>
               </th>
             ))}
           </tr>

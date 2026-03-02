@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/Toast";
 import { Tabs } from "@/components/ui/Tabs";
 import type { Checkpoint, Checkin, CheckpointCategory } from "@/lib/types/checkpoint";
 import type { UserDocument } from "@/lib/types/user";
+import ExcelJS from "exceljs";
 
 const CATEGORY_COLORS: Record<CheckpointCategory, string> = {
   pre_departure: "bg-[#BF5AF2]/10 text-[#BF5AF2]",
@@ -35,6 +36,76 @@ export default function TACheckpointsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingCp, setEditingCp] = useState<Checkpoint | undefined>();
   const [tab, setTab] = useState("matrix");
+  const [exporting, setExporting] = useState(false);
+
+  const exportToExcel = async () => {
+    setExporting(true);
+    try {
+      const checkinMap = new Map<string, boolean>();
+      checkins.forEach((ci) => {
+        checkinMap.set(`${ci.userId}:${ci.checkpointId}`, true);
+      });
+
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet("Checkpoints");
+
+      sheet.columns = [
+        { header: "Student", key: "student", width: 28 },
+        ...checkpoints.map((cp) => ({
+          header: `${cp.order}. ${cp.name}`,
+          key: cp.id,
+          width: 16,
+        })),
+      ];
+
+      // Style header row
+      const headerRow = sheet.getRow(1);
+      headerRow.font = { bold: true };
+      headerRow.fill = {
+        type: "pattern" as const,
+        pattern: "solid" as const,
+        fgColor: { argb: "FFF2F2F7" },
+      };
+
+      // Student rows
+      for (const s of students) {
+        const row: Record<string, string> = {
+          student: `${s.familyNameEn || ""} ${s.firstNameEn || ""}`.trim(),
+        };
+        for (const cp of checkpoints) {
+          row[cp.id] = checkinMap.has(`${s.id}:${cp.id}`) ? "Yes" : "No";
+        }
+        sheet.addRow(row);
+      }
+
+      // Summary row
+      const summaryRow: Record<string, string> = {
+        student: `Total (${students.length})`,
+      };
+      for (const cp of checkpoints) {
+        const count = students.filter((s) => checkinMap.has(`${s.id}:${cp.id}`)).length;
+        summaryRow[cp.id] = `${count}/${students.length}`;
+      }
+      const totalRow = sheet.addRow(summaryRow);
+      totalRow.font = { bold: true };
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const date = new Date().toISOString().split("T")[0];
+      a.download = `Shanghai_Forum_Checkpoints_${date}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to export checkpoints:", err);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -165,6 +236,13 @@ export default function TACheckpointsPage() {
               Load Defaults
             </Button>
           )}
+          <Button
+            variant="secondary"
+            onClick={exportToExcel}
+            disabled={exporting || students.length === 0}
+          >
+            {exporting ? "Exporting…" : "Export Excel"}
+          </Button>
           <Button onClick={() => { setEditingCp(undefined); setShowForm(true); }}>
             Add Checkpoint
           </Button>
