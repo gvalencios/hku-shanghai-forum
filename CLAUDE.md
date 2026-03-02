@@ -17,7 +17,7 @@ Trip management website for ~100 HKU students travelling to Shanghai (AILT1001-2
 **DEPLOYED** — All 19 routes built and live on Vercel. Firebase project: `hku-shanghai-portal`.
 
 Completed manual steps:
-1. ✅ Firebase project created, Firestore + Auth (Email Link) enabled
+1. ✅ Firebase project created, Firestore enabled (no Firebase Auth used — custom JWT only)
 2. ✅ `.env.local` configured with all keys
 3. ✅ Firestore security rules deployed (`firebase deploy --only firestore:rules`)
 4. ✅ Vercel deployment connected to GitHub, env vars set
@@ -25,6 +25,7 @@ Completed manual steps:
 
 ## Architecture
 - **Auth flow**: HKU email + Student/Staff ID → POST `/api/login` → JWT cookie → redirect to `/dashboard`
+- **Cookie config**: `sameSite: "none"`, `secure: true` — required for cross-site iframe embedding (e.g. ED platform)
 - **Role assignment**: TA emails defined in `TA_EMAILS` env var; all others are students
 - **Email domains**: Only `@hku.hk` and `@connect.hku.hk` accepted
 - **Route protection**: Middleware (`middleware.ts`) checks JWT; `/ta/*` routes restricted to TA role
@@ -178,6 +179,19 @@ src/
     └── firestore/ (users, checkpoints, checkins, reports, contact-persons, info-blocks, info-categories)
 ```
 
+## Environment Variables
+Required in `.env.local` and Vercel:
+- `JWT_SECRET` — secret for signing session JWTs
+- `TA_EMAILS` — comma-separated list of TA email addresses
+- `TA_PASSCODE` — shared passcode for TA login
+- `NEXT_PUBLIC_FIREBASE_*` — Firebase client config (apiKey, projectId, etc.)
+- `FIREBASE_SERVICE_ACCOUNT` — Firebase Admin SDK credentials (JSON string)
+
+## Known Gotchas
+- **Webpack cache warning**: `.next/cache/webpack/server-development/0.pack.gz` ENOENT on dev startup — non-fatal, safe to ignore
+- **Excel upload deletes**: Uploading a new Excel file deletes ALL students not present in it (from both `users` and `emailStudentMap`). Preview mode shows diff before confirm.
+- **Cross-site cookies**: `sameSite: "none"` requires `secure: true` always (even in dev). Browsers reject SameSite=None without Secure.
+
 ## Common Commands
 ```bash
 npm run dev                              # Start dev server (localhost:3000)
@@ -186,6 +200,3 @@ npm run lint                             # ESLint
 firebase deploy --only firestore:rules   # Deploy Firestore security rules
 git add . && git commit -m "..." && git push  # Deploy to Vercel (auto on push)
 ```
-
-# currentDate
-Today's date is 2026-02-23.

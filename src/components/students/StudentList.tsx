@@ -62,6 +62,36 @@ export function StudentList({ students, onRowClick }: StudentListProps) {
       ),
     },
     {
+      key: "healthDiet",
+      header: "Health/Diet",
+      render: (row: UserDocument) => {
+        const parts: string[] = [];
+        if (row.dietaryRestrictions) parts.push(row.dietaryRestrictions);
+        if (row.medicalConditions) parts.push(row.medicalConditions);
+        if (parts.length === 0) return <span className="text-[#86868B]">—</span>;
+        const text = parts.join("; ");
+        return (
+          <span className="text-[13px] text-[#1D1D1F]" title={text}>
+            {text.length > 30 ? text.slice(0, 30) + "…" : text}
+          </span>
+        );
+      },
+    },
+    {
+      key: "emergencyContact",
+      header: "Emergency",
+      render: (row: UserDocument) => {
+        const ec = row.emergencyContact;
+        if (!ec?.name) return <span className="text-[#86868B]">—</span>;
+        return (
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[13px] font-medium text-[#1D1D1F]">{ec.name}</span>
+            {ec.phone && <span className="text-[11px] text-[#86868B]">{ec.phone}</span>}
+          </div>
+        );
+      },
+    },
+    {
       key: "visaStatus",
       header: "Visa",
       render: (row: UserDocument) => {
