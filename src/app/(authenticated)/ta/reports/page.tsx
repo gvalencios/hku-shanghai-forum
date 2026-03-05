@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAllReports } from "@/lib/firestore/reports";
+import { getAllStudents } from "@/lib/firestore/users";
 import { ReportCard } from "@/components/reports/ReportCard";
 import { ReportFilters } from "@/components/reports/ReportFilters";
 import { Spinner } from "@/components/ui/Spinner";
@@ -10,13 +11,20 @@ import type { Report, ReportStatus, ReportImportance } from "@/lib/types/report"
 
 export default function TAReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
+  const [nameMap, setNameMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "all">("all");
   const [importanceFilter, setImportanceFilter] = useState<ReportImportance | "all">("all");
 
   useEffect(() => {
-    getAllReports().then((data) => {
+    Promise.all([getAllReports(), getAllStudents()]).then(([data, students]) => {
       setReports(data);
+      const map: Record<string, string> = {};
+      for (const s of students) {
+        const name = [s.familyNameEn, s.firstNameEn].filter(Boolean).join(" ");
+        if (name) map[s.id] = name;
+      }
+      setNameMap(map);
       setLoading(false);
     });
   }, []);
@@ -66,7 +74,7 @@ export default function TAReportsPage() {
           <EmptyState title="No reports found" description="Adjust filters or wait for students to submit reports." />
         ) : (
           filtered.map((r) => (
-            <ReportCard key={r.id} report={r} href={`/ta/reports/${r.id}`} />
+            <ReportCard key={r.id} report={r} href={`/ta/reports/${r.id}`} studentFullName={nameMap[r.studentId]} />
           ))
         )}
       </div>

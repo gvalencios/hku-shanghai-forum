@@ -23,9 +23,10 @@ interface ReportCardProps {
   report: Report;
   href: string;
   showImportance?: boolean;
+  studentFullName?: string;
 }
 
-export function ReportCard({ report, href, showImportance = true }: ReportCardProps) {
+export function ReportCard({ report, href, showImportance = true, studentFullName }: ReportCardProps) {
   return (
     <Link href={href}>
       <Card className="transition-all hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
@@ -36,8 +37,14 @@ export function ReportCard({ report, href, showImportance = true }: ReportCardPr
                 {report.title}
               </p>
               <p className="mt-0.5 text-[13px] text-[#86868B]">
-                {report.studentName} &middot;{" "}
-                {new Date(report.createdAt).toLocaleDateString()}
+                <a
+                  href={`/ta/students/${encodeURIComponent(report.studentId)}`}
+                  className="text-[#007AFF] hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {studentFullName ? `${studentFullName} (${report.studentName})` : report.studentName}
+                </a>
+                {" "}&middot; {new Date(report.createdAt).toLocaleDateString()}
               </p>
             </div>
             <div className="flex flex-shrink-0 gap-1.5">

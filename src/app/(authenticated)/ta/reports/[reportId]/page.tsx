@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { getReportById, getReplies, updateReport } from "@/lib/firestore/reports";
 import { getAllContactPersons } from "@/lib/firestore/contact-persons";
+import { getUserById } from "@/lib/firestore/users";
 import { ReplyThread } from "@/components/reports/ReplyThread";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -37,6 +38,7 @@ export default function TAReportDetailPage() {
   const [report, setReport] = useState<Report | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
   const [contacts, setContacts] = useState<ContactPerson[]>([]);
+  const [studentFullName, setStudentFullName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
@@ -48,6 +50,13 @@ export default function TAReportDetailPage() {
     setReport(r);
     setReplies(reps);
     setContacts(cts);
+    if (r?.studentId) {
+      const student = await getUserById(r.studentId);
+      if (student) {
+        const name = [student.familyNameEn, student.firstNameEn].filter(Boolean).join(" ");
+        setStudentFullName(name || null);
+      }
+    }
     setLoading(false);
   };
 
@@ -100,7 +109,14 @@ export default function TAReportDetailPage() {
           {report.title}
         </h1>
         <p className="mt-1 text-[13px] text-[#86868B]">
-          by {report.studentName} &middot; {new Date(report.createdAt).toLocaleString()}
+          by{" "}
+          <a
+            href={`/ta/students/${encodeURIComponent(report.studentId)}`}
+            className="text-[#007AFF] hover:underline"
+          >
+            {studentFullName ? `${studentFullName} (${report.studentName})` : report.studentName}
+          </a>
+          {" "}&middot; {new Date(report.createdAt).toLocaleString()}
         </p>
       </div>
 
