@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { UserDocument } from "@/lib/types/user";
 import { updateUserProfile } from "@/lib/firestore/users";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
@@ -140,6 +141,46 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
 
   return (
     <div className="space-y-4">
+
+      {/* ── Accommodation ── */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <h3 className="text-[15px] font-semibold text-[#1D1D1F]">Accommodation</h3>
+            <Badge variant="default">Managed by TA</Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <dt className="text-[12px] font-medium uppercase tracking-wider text-[#86868B]">Check-in</dt>
+              <dd className="mt-0.5 text-[15px] text-[#1D1D1F]">{user.accommodation?.checkInDate || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[12px] font-medium uppercase tracking-wider text-[#86868B]">Check-out</dt>
+              <dd className="mt-0.5 text-[15px] text-[#1D1D1F]">{user.accommodation?.checkOutDate || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[12px] font-medium uppercase tracking-wider text-[#86868B]">Room Type</dt>
+              <dd className="mt-0.5 text-[15px] text-[#1D1D1F]">
+                {user.accommodation?.roomType
+                  ? user.accommodation.roomType === "single" ? "Single" : "Double"
+                  : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[12px] font-medium uppercase tracking-wider text-[#86868B]">Room Information</dt>
+              <dd className="mt-0.5 text-[15px] text-[#1D1D1F]">
+                {user.accommodation?.roomInfo || <span className="text-[13px] italic text-[#86868B]">Room number will be confirmed during check-in.</span>}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[12px] font-medium uppercase tracking-wider text-[#86868B]">Booking Confirmation Number</dt>
+              <dd className="mt-0.5 text-[15px] text-[#1D1D1F]">{user.accommodation?.bookingConfirmation || "—"}</dd>
+            </div>
+          </dl>
+        </CardContent>
+      </Card>
 
       {/* ── Flight Information ── */}
       <Card>

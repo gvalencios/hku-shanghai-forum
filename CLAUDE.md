@@ -3,6 +3,25 @@
 ## Overview
 Trip management website for ~100 HKU students travelling to Shanghai (AILT1001-2S, March 2026). Two role-based views (Student / TA) covering: student profiles with Excel bulk import, trip checkpoint monitoring, incident/report system with TA triage, and an information hub.
 
+## Quick Start
+```bash
+# 1. Clone and install
+git clone <repo-url>
+cd shanghai-forum
+npm install
+
+# 2. Set up environment variables
+cp .env.example .env.local  # (or create manually with values below)
+
+# 3. Start development server
+npm run dev
+
+# App will be available at http://localhost:3000
+# Log in with HKU email (@hku.hk or @connect.hku.hk) + Student/Staff ID
+```
+
+**For local Firebase setup:** You'll need the Firebase Admin SDK credentials (JSON). Download from Firebase Console → Project Settings → Service Accounts → Node.js. Set `FIREBASE_SERVICE_ACCOUNT` in `.env.local` as the JSON string.
+
 ## Tech Stack
 - **Framework**: Next.js 16 App Router + TypeScript
 - **Database**: Firebase Firestore
@@ -14,7 +33,11 @@ Trip management website for ~100 HKU students travelling to Shanghai (AILT1001-2
 - **Utilities**: clsx + tailwind-merge
 
 ## Current Status
-**DEPLOYED** — All 19 routes built and live on Vercel. Firebase project: `hku-shanghai-portal`.
+**DEPLOYED** — Core routes (19 total) built and live on Vercel. Firebase project: `hku-shanghai-portal`.
+
+**Feature Status:**
+- ✅ Checkpoint matrix with Excel export + header tooltips (merged in PR #2, commit b45fff0)
+- ⚠️ TA student enhancements (Excel bulk import, student editing, list improvements) were merged in PR #1 (commit 19913af) but reverted (commit 4a10432); remain in feature branch `feat/ta-student-enhancements` for potential re-merge
 
 Completed manual steps:
 1. ✅ Firebase project created, Firestore enabled (no Firebase Auth used — custom JWT only)
@@ -181,11 +204,22 @@ src/
 
 ## Environment Variables
 Required in `.env.local` and Vercel:
-- `JWT_SECRET` — secret for signing session JWTs
-- `TA_EMAILS` — comma-separated list of TA email addresses
-- `TA_PASSCODE` — shared passcode for TA login
-- `NEXT_PUBLIC_FIREBASE_*` — Firebase client config (apiKey, projectId, etc.)
-- `FIREBASE_SERVICE_ACCOUNT` — Firebase Admin SDK credentials (JSON string)
+
+**Authentication & Security:**
+- `JWT_SECRET` — secret for signing session JWTs (generate: `openssl rand -hex 32`)
+- `TA_EMAILS` — comma-separated list of TA email addresses (e.g., `ta1@hku.hk,ta2@hku.hk`)
+- `TA_PASSCODE` — shared passcode for TA login (if used; currently not enforced in login flow)
+
+**Firebase Client (public, from Firebase Console → Project Settings):**
+- `NEXT_PUBLIC_FIREBASE_API_KEY`
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `NEXT_PUBLIC_FIREBASE_APP_ID`
+
+**Firebase Admin (private, from Firebase Console → Service Accounts → Node.js):**
+- `FIREBASE_SERVICE_ACCOUNT` — JSON string of entire service account key (used for admin operations in `/api/*` routes)
 
 ## Known Gotchas
 - **Webpack cache warning**: `.next/cache/webpack/server-development/0.pack.gz` ENOENT on dev startup — non-fatal, safe to ignore

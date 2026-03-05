@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Spinner";
 import { useToast } from "@/components/ui/Toast";
-import type { UserDocument } from "@/lib/types/user";
+import type { UserDocument, Accommodation } from "@/lib/types/user";
 
 interface EditableFields {
   familyNameEn: string;
@@ -87,6 +87,10 @@ export default function TAStudentDetailPage() {
   const [editData, setEditData] = useState<EditableFields | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const [isEditingAccom, setIsEditingAccom] = useState(false);
+  const [accomData, setAccomData] = useState<Accommodation | null>(null);
+  const [savingAccom, setSavingAccom] = useState(false);
+
   useEffect(() => {
     getUserById(email).then((data) => {
       setStudent(data);
@@ -103,6 +107,43 @@ export default function TAStudentDetailPage() {
   function cancelEditing() {
     setEditData(null);
     setIsEditing(false);
+  }
+
+  function startEditingAccom() {
+    if (!student) return;
+    setAccomData(student.accommodation ?? {
+      checkInDate: "",
+      checkOutDate: "",
+      roomType: "",
+      roomInfo: "",
+      bookingConfirmation: "",
+    });
+    setIsEditingAccom(true);
+  }
+
+  function cancelEditingAccom() {
+    setAccomData(null);
+    setIsEditingAccom(false);
+  }
+
+  async function saveAccom() {
+    if (!student || !accomData) return;
+    setSavingAccom(true);
+    try {
+      await updateUserProfile(email, { accommodation: accomData });
+      setStudent({ ...student, accommodation: accomData });
+      setIsEditingAccom(false);
+      setAccomData(null);
+      toast("Accommodation updated", "success");
+    } catch {
+      toast("Failed to save accommodation", "error");
+    } finally {
+      setSavingAccom(false);
+    }
+  }
+
+  function updateAccomField<K extends keyof Accommodation>(key: K, value: Accommodation[K]) {
+    setAccomData((prev) => prev ? { ...prev, [key]: value } : prev);
   }
 
   async function saveEdits() {
@@ -242,6 +283,67 @@ export default function TAStudentDetailPage() {
                   </div>
                 )}
               </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Accommodation */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <h2 className="text-[13px] font-semibold uppercase tracking-wider text-[#86868B]">Accommodation</h2>
+              {!isEditingAccom && (
+                <Button variant="ghost" size="sm" onClick={startEditingAccom} className="text-[#007AFF]">
+                  <svg className="mr-1 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                  </svg>
+                  Edit
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isEditingAccom && accomData ? (
+              <>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+                  <Input label="Check-in" value={accomData.checkInDate} onChange={(e) => updateAccomField("checkInDate", e.target.value)} />
+                  <Input label="Check-out" value={accomData.checkOutDate} onChange={(e) => updateAccomField("checkOutDate", e.target.value)} />
+                  <Select
+                    label="Room Type"
+                    value={accomData.roomType}
+                    onChange={(e) => updateAccomField("roomType", e.target.value)}
+                    options={[{ value: "single", label: "Single" }, { value: "double", label: "Double" }]}
+                    placeholder="Select"
+                  />
+                  <Input label="Room Information" value={accomData.roomInfo} onChange={(e) => updateAccomField("roomInfo", e.target.value)} />
+                  <Input label="Booking Confirmation Number" value={accomData.bookingConfirmation} onChange={(e) => updateAccomField("bookingConfirmation", e.target.value)} />
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <Button size="sm" onClick={saveAccom} disabled={savingAccom}>
+                    {savingAccom ? "Saving\u2026" : "Save"}
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={cancelEditingAccom} disabled={savingAccom}>
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+                <Field label="Check-in" value={student.accommodation?.checkInDate} />
+                <Field label="Check-out" value={student.accommodation?.checkOutDate} />
+                <Field label="Room Type" value={
+                  student.accommodation?.roomType === "single" ? "Single" :
+                  student.accommodation?.roomType === "double" ? "Double" :
+                  student.accommodation?.roomType || undefined
+                } />
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Room Information</p>
+                  <p className="mt-0.5 text-[14px] text-[#1D1D1F]">
+                    {student.accommodation?.roomInfo || <span className="text-[13px] italic text-[#86868B]">Room number will be confirmed during check-in.</span>}
+                  </p>
+                </div>
+                <Field label="Booking Confirmation Number" value={student.accommodation?.bookingConfirmation} />
+              </div>
             )}
           </CardContent>
         </Card>
