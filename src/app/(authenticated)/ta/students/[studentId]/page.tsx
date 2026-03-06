@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Spinner";
 import { useToast } from "@/components/ui/Toast";
-import type { UserDocument, Accommodation } from "@/lib/types/user";
+import type { UserDocument, Accommodation, FlightInfo } from "@/lib/types/user";
 
 interface EditableFields {
   familyNameEn: string;
@@ -91,6 +91,16 @@ export default function TAStudentDetailPage() {
   const [accomData, setAccomData] = useState<Accommodation | null>(null);
   const [savingAccom, setSavingAccom] = useState(false);
 
+  const [isEditingTravel, setIsEditingTravel] = useState(false);
+  const [travelData, setTravelData] = useState<{
+    flightTicketStatus: string;
+    departureFlight: FlightInfo;
+    arrivalFlight: FlightInfo;
+    visaStatus: string;
+    visaNotes: string;
+  } | null>(null);
+  const [savingTravel, setSavingTravel] = useState(false);
+
   useEffect(() => {
     getUserById(email).then((data) => {
       setStudent(data);
@@ -144,6 +154,39 @@ export default function TAStudentDetailPage() {
 
   function updateAccomField<K extends keyof Accommodation>(key: K, value: Accommodation[K]) {
     setAccomData((prev) => prev ? { ...prev, [key]: value } : prev);
+  }
+
+  function startEditingTravel() {
+    if (!student) return;
+    setTravelData({
+      flightTicketStatus: student.flightTicketStatus ?? "",
+      departureFlight: student.departureFlight ?? { date: "", time: "", flightNumber: "" },
+      arrivalFlight: student.arrivalFlight ?? { date: "", time: "", flightNumber: "" },
+      visaStatus: student.visaStatus ?? "",
+      visaNotes: student.visaNotes ?? "",
+    });
+    setIsEditingTravel(true);
+  }
+
+  function cancelEditingTravel() {
+    setTravelData(null);
+    setIsEditingTravel(false);
+  }
+
+  async function saveTravel() {
+    if (!student || !travelData) return;
+    setSavingTravel(true);
+    try {
+      await updateUserProfile(email, travelData);
+      setStudent({ ...student, ...travelData });
+      setIsEditingTravel(false);
+      setTravelData(null);
+      toast("Travel info updated", "success");
+    } catch {
+      toast("Failed to save travel info", "error");
+    } finally {
+      setSavingTravel(false);
+    }
   }
 
   async function saveEdits() {
@@ -351,42 +394,104 @@ export default function TAStudentDetailPage() {
         {/* Travel info */}
         <Card>
           <CardHeader>
-            <h2 className="text-[13px] font-semibold uppercase tracking-wider text-[#86868B]">Travel</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-[13px] font-semibold uppercase tracking-wider text-[#86868B]">Travel</h2>
+              {!isEditingTravel && (
+                <Button variant="ghost" size="sm" onClick={startEditingTravel} className="text-[#007AFF]">
+                  <svg className="mr-1 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                  </svg>
+                  Edit
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              {/* Row 1: ticket + visa status */}
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Flight Ticket</p>
-                <p className="mt-0.5 text-[14px]">
-                  {student.flightTicketStatus === "purchased"
-                    ? <span className="text-[#30D158]">Purchased</span>
-                    : student.flightTicketStatus === "not_purchased"
-                    ? <span className="text-[#FF3B30]">Not Purchased</span>
-                    : <span className="text-[#86868B]">—</span>}
-                </p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Visa Status</p>
-                <div className="mt-1">
-                  {student.visaStatus ? (
-                    <Badge variant={visaVariant[student.visaStatus] ?? "default"}>
-                      {student.visaStatus.replace(/_/g, " ")}
-                    </Badge>
-                  ) : (
-                    <span className="text-[14px] text-[#86868B]">—</span>
-                  )}
+            {isEditingTravel && travelData ? (
+              <>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                  <Select
+                    label="Flight Ticket"
+                    value={travelData.flightTicketStatus}
+                    onChange={(e) => setTravelData({ ...travelData, flightTicketStatus: e.target.value })}
+                    options={[{ value: "purchased", label: "Purchased" }, { value: "not_purchased", label: "Not Purchased" }]}
+                    placeholder="Select"
+                  />
+                  <Select
+                    label="Visa Status"
+                    value={travelData.visaStatus}
+                    onChange={(e) => setTravelData({ ...travelData, visaStatus: e.target.value })}
+                    options={[
+                      { value: "not_started", label: "Not Started" },
+                      { value: "in_progress", label: "In Progress" },
+                      { value: "approved", label: "Approved" },
+                      { value: "not_required", label: "Not Required" },
+                    ]}
+                    placeholder="Select"
+                  />
                 </div>
-              </div>
-              {/* Row 2: flights */}
-              <Field label="Departure Flight" value={formatFlight(student.departureFlight)} />
-              <Field label="Return Flight" value={formatFlight(student.arrivalFlight)} />
-            </div>
-            {/* Visa notes only if filled */}
-            {student.visaNotes && (
-              <div className="mt-4 border-t border-[#F5F5F7] pt-4">
-                <Field label="Visa Notes" value={student.visaNotes} />
-              </div>
+                <div className="mt-4 border-t border-[#F5F5F7] pt-4">
+                  <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Departure Flight</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <Input label="Date" type="date" value={travelData.departureFlight.date} onChange={(e) => setTravelData({ ...travelData, departureFlight: { ...travelData.departureFlight, date: e.target.value } })} />
+                    <Input label="Time" type="time" value={travelData.departureFlight.time} onChange={(e) => setTravelData({ ...travelData, departureFlight: { ...travelData.departureFlight, time: e.target.value } })} />
+                    <Input label="Flight Number" placeholder="e.g. CX123" value={travelData.departureFlight.flightNumber} onChange={(e) => setTravelData({ ...travelData, departureFlight: { ...travelData.departureFlight, flightNumber: e.target.value } })} />
+                  </div>
+                </div>
+                <div className="mt-4 border-t border-[#F5F5F7] pt-4">
+                  <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Return Flight</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <Input label="Date" type="date" value={travelData.arrivalFlight.date} onChange={(e) => setTravelData({ ...travelData, arrivalFlight: { ...travelData.arrivalFlight, date: e.target.value } })} />
+                    <Input label="Time" type="time" value={travelData.arrivalFlight.time} onChange={(e) => setTravelData({ ...travelData, arrivalFlight: { ...travelData.arrivalFlight, time: e.target.value } })} />
+                    <Input label="Flight Number" placeholder="e.g. CX456" value={travelData.arrivalFlight.flightNumber} onChange={(e) => setTravelData({ ...travelData, arrivalFlight: { ...travelData.arrivalFlight, flightNumber: e.target.value } })} />
+                  </div>
+                </div>
+                <div className="mt-4 border-t border-[#F5F5F7] pt-4">
+                  <Input label="Visa Notes" value={travelData.visaNotes} onChange={(e) => setTravelData({ ...travelData, visaNotes: e.target.value })} />
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <Button size="sm" onClick={saveTravel} disabled={savingTravel}>
+                    {savingTravel ? "Saving\u2026" : "Save"}
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={cancelEditingTravel} disabled={savingTravel}>
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Flight Ticket</p>
+                    <p className="mt-0.5 text-[14px]">
+                      {student.flightTicketStatus === "purchased"
+                        ? <span className="text-[#30D158]">Purchased</span>
+                        : student.flightTicketStatus === "not_purchased"
+                        ? <span className="text-[#FF3B30]">Not Purchased</span>
+                        : <span className="text-[#86868B]">—</span>}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Visa Status</p>
+                    <div className="mt-1">
+                      {student.visaStatus ? (
+                        <Badge variant={visaVariant[student.visaStatus] ?? "default"}>
+                          {student.visaStatus.replace(/_/g, " ")}
+                        </Badge>
+                      ) : (
+                        <span className="text-[14px] text-[#86868B]">—</span>
+                      )}
+                    </div>
+                  </div>
+                  <Field label="Departure Flight" value={formatFlight(student.departureFlight)} />
+                  <Field label="Return Flight" value={formatFlight(student.arrivalFlight)} />
+                </div>
+                {student.visaNotes && (
+                  <div className="mt-4 border-t border-[#F5F5F7] pt-4">
+                    <Field label="Visa Notes" value={student.visaNotes} />
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

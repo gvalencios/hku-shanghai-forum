@@ -20,7 +20,7 @@ npm run dev
 # Log in with HKU email (@hku.hk or @connect.hku.hk) + Student/Staff ID
 ```
 
-**For local Firebase setup:** You'll need the Firebase Admin SDK credentials (JSON). Download from Firebase Console → Project Settings → Service Accounts → Node.js. Set `FIREBASE_SERVICE_ACCOUNT` in `.env.local` as the JSON string.
+**For local Firebase setup:** You'll need the Firebase Admin SDK credentials. Download from Firebase Console → Project Settings → Service Accounts → Node.js. Set `FIREBASE_ADMIN_CLIENT_EMAIL` and `FIREBASE_ADMIN_PRIVATE_KEY` in `.env.local`.
 
 ## Tech Stack
 - **Framework**: Next.js 16 App Router + TypeScript
@@ -36,8 +36,12 @@ npm run dev
 **DEPLOYED** — Core routes (19 total) built and live on Vercel. Firebase project: `hku-shanghai-portal`.
 
 **Feature Status:**
-- ✅ Checkpoint matrix with Excel export + header tooltips (merged in PR #2, commit b45fff0)
-- ⚠️ TA student enhancements (Excel bulk import, student editing, list improvements) were merged in PR #1 (commit 19913af) but reverted (commit 4a10432); remain in feature branch `feat/ta-student-enhancements` for potential re-merge
+- ✅ Checkpoint matrix with Excel export + header tooltips
+- ✅ Accommodation section on student profiles (read-only for students, editable by TA)
+- ✅ Bulk accommodation import via `/api/admin/upload-accommodation`
+- ✅ Add/Remove individual students via modals on TA students page
+- ✅ Student full name + profile link on TA report pages
+- ✅ TA student enhancements (Excel bulk import, student editing, list improvements)
 
 Completed manual steps:
 1. ✅ Firebase project created, Firestore enabled (no Firebase Auth used — custom JWT only)
@@ -67,28 +71,16 @@ Completed manual steps:
 - **Next Checkpoint card**: shows next unchecked checkpoint with "Go to Checkpoints" button
 
 ### Profile (`/profile`)
-**TA-managed fields (read-only, pre-filled from Excel):**
-familyNameEn, firstNameEn, fullChineseName, gender, faculty, studentId, passportCountry, hasChinaBankAccount, telephone, specialRequest
+**Sections (in order):**
+1. **Accommodation** (read-only, managed by TA) — check-in/out dates, room type (Single/Double), room info, booking confirmation number
+2. **Flight Information** (editable, required) — ticket status, departure/return flight details
+3. **Visa Information** (editable, required) — status + notes
+4. **Emergency Contact** (editable, optional)
+5. **Health & Dietary** (editable, optional)
 
-**Student-managed fields (editable, 8 required for profile %)**:
+**TA-managed fields** (read-only in University Info card): familyNameEn, firstNameEn, fullChineseName, gender, faculty, studentId, passportCountry, hasChinaBankAccount, telephone, specialRequest
 
-| Section | Field | Type | Required |
-|---------|-------|------|----------|
-| Flight Information | flightTicketStatus | select: Purchased / Not Purchased | ✅ |
-| Flight Information | departureFlight.date | date | ✅ |
-| Flight Information | departureFlight.time | time | ✅ |
-| Flight Information | departureFlight.flightNumber | text | ✅ |
-| Flight Information | arrivalFlight.date | date | ✅ |
-| Flight Information | arrivalFlight.time | time | ✅ |
-| Flight Information | arrivalFlight.flightNumber | text | ✅ |
-| Visa Information | visaStatus | select: Not Started / In Progress / Approved / Not Required | ✅ |
-| Visa Information | visaNotes | textarea | optional |
-| Emergency Contact | emergencyContact.name | text | optional |
-| Emergency Contact | emergencyContact.relationship | text | optional |
-| Emergency Contact | emergencyContact.phone | tel | optional |
-| Emergency Contact | emergencyContact.email | email | optional |
-| Health & Dietary | dietaryRestrictions | textarea | optional |
-| Health & Dietary | medicalConditions | textarea | optional |
+**8 required fields for profile %**: flightTicketStatus, departureFlight (date/time/flightNumber), arrivalFlight (date/time/flightNumber), visaStatus
 
 ### Checkpoints (`/checkpoints`)
 - Grouped by 5 categories: Pre-Departure, Day of Travel, Arrival, During Trip, Return
@@ -97,16 +89,7 @@ familyNameEn, firstNameEn, fullChineseName, gender, faculty, studentId, passport
 - **Undo** button → deletes checkin record
 - Recurring checkpoints (Daily check-in) use `recurringDate` field (YYYY-MM-DD)
 
-**Active checkpoints (9):**
-1. Flight ticket purchased (Pre-Departure)
-2. Boarded departure flight (Day of Travel)
-3. Landed at Shanghai Pudong International Airport (Arrival)
-4. Passed immigration/customs (Arrival)
-5. Arrived at university/dorm (Arrival)
-6. Checked into dorm room (Arrival)
-7. Daily check-in — recurring (During Trip)
-8. Boarded return flight (Return)
-9. Arrived back in Hong Kong (Return)
+**9 active checkpoints** across 5 categories: Pre-Departure, Day of Travel, Arrival, During Trip, Return. Includes a recurring "Daily check-in" checkpoint.
 
 ### Reports (`/reports`)
 - List of own reports with status badges
@@ -123,11 +106,13 @@ familyNameEn, firstNameEn, fullChineseName, gender, faculty, studentId, passport
 ## TA-Facing Features
 
 ### Students (`/ta/students`)
-- Full student table with columns: Name, Email, Student ID, Faculty, Gender, Passport Country, China Bank, Telephone, Special Request, Visa, Flight Ticket, Departure Flight, Return Flight
-- Click row → student detail page (`/ta/students/[studentId]`)
-- **Excel upload**: preview (shows added + deleted students) → confirm → upsert/delete in Firestore
-  - Deletes students NOT in new Excel file from both `users` and `emailStudentMap` collections
-  - Preserves student-entered fields (flights, visa, etc.) on update
+- Full student table with search, click row → student detail page (`/ta/students/[studentId]`)
+- **Action buttons** (above table): Add Student, Remove Student, Import Excel, Export Excel
+  - **Add Student**: modal form for TA-managed fields → creates user + emailStudentMap docs
+  - **Remove Student**: modal with search → select student → confirm deletion
+  - **Import Excel**: modal with drag-and-drop upload, preview (added/deleted diff) → confirm → batch upsert/delete
+  - **Export Excel**: downloads all student data as .xlsx
+- Student detail page includes editable accommodation card and university info
 
 ### Checkpoints (`/ta/checkpoints`)
 - **Matrix View**: student × checkpoint grid showing check-in status
@@ -137,6 +122,7 @@ familyNameEn, firstNameEn, fullChineseName, gender, faculty, studentId, passport
 
 ### Reports (`/ta/reports`)
 - All student reports with filters (status, importance)
+- Student name displayed with link to their profile
 - Triage: set status (open/in_progress/resolved/cancelled), importance (low/medium/high/urgent), assign contact persons
 - Reply thread on each report
 
@@ -148,27 +134,28 @@ familyNameEn, firstNameEn, fullChineseName, gender, faculty, studentId, passport
 - Per-block: title, body, category, published toggle, links (label + URL pairs), reorder up/down
 - Preview mode filtered by tab; arrows hidden on "All" tab
 
-## Routes (19 total)
+## Routes (20 total)
 ```
-/                           - Redirect to /dashboard or /login
-/login                      - HKU email + Student/Staff ID login form
-/api/login                  - Validate credentials, set JWT cookie
-/api/admin/upload-students  - Excel upload (preview + confirm modes)
-/api/admin/seed-info        - Seed info blocks (?force=true to re-seed)
-/dashboard                  - Role-based dashboard (student/TA)
-/profile                    - Student profile (TA fields read-only + edit own)
-/checkpoints                - Student checkpoint list with check-in/undo
-/reports                    - Student reports list
-/reports/new                - Create new report
-/reports/[reportId]         - Report detail + replies + cancel
-/info                       - Student info hub (tab-filtered)
-/ta/students                - Student management + Excel upload
-/ta/students/[studentId]    - Student detail (all fields)
-/ta/checkpoints             - Checkpoint management + matrix view
-/ta/reports                 - All reports with filters + triage
-/ta/reports/[reportId]      - Report triage (status, importance, contacts)
-/ta/contacts                - Contact persons management
-/ta/info                    - Info blocks management + section management
+/                                - Redirect to /dashboard or /login
+/login                           - HKU email + Student/Staff ID login form
+/api/login                       - Validate credentials, set JWT cookie
+/api/admin/upload-students       - Excel upload (preview + confirm modes)
+/api/admin/upload-accommodation  - Accommodation Excel upload
+/api/admin/seed-info             - Seed info blocks (?force=true to re-seed)
+/dashboard                       - Role-based dashboard (student/TA)
+/profile                         - Student profile (TA fields read-only + edit own)
+/checkpoints                     - Student checkpoint list with check-in/undo
+/reports                         - Student reports list
+/reports/new                     - Create new report
+/reports/[reportId]              - Report detail + replies + cancel
+/info                            - Student info hub (tab-filtered)
+/ta/students                     - Student management (add/remove/import/export)
+/ta/students/[studentId]         - Student detail (all fields + accommodation)
+/ta/checkpoints                  - Checkpoint management + matrix view
+/ta/reports                      - All reports with filters + triage
+/ta/reports/[reportId]           - Report triage (status, importance, contacts)
+/ta/contacts                     - Contact persons management
+/ta/info                         - Info blocks management + section management
 ```
 
 ## File Structure
@@ -177,7 +164,7 @@ src/
 ├── app/
 │   ├── layout.tsx, page.tsx, globals.css
 │   ├── login/ (page)
-│   ├── api/ (login, admin/upload-students, admin/seed-info)
+│   ├── api/ (login, admin/upload-students, admin/upload-accommodation, admin/seed-info)
 │   └── (authenticated)/
 │       ├── layout.tsx, error.tsx
 │       ├── dashboard/ (page, loading)
@@ -219,7 +206,8 @@ Required in `.env.local` and Vercel:
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 
 **Firebase Admin (private, from Firebase Console → Service Accounts → Node.js):**
-- `FIREBASE_SERVICE_ACCOUNT` — JSON string of entire service account key (used for admin operations in `/api/*` routes)
+- `FIREBASE_ADMIN_CLIENT_EMAIL` — service account email (used for admin operations in `/api/*` routes)
+- `FIREBASE_ADMIN_PRIVATE_KEY` — service account private key (use `\n` for newlines, wrap in quotes)
 
 ## Known Gotchas
 - **Webpack cache warning**: `.next/cache/webpack/server-development/0.pack.gz` ENOENT on dev startup — non-fatal, safe to ignore
