@@ -23,7 +23,7 @@ export function Header() {
         <h2 className="text-[15px] font-semibold text-[#1D1D1F]">
           HKU Shanghai Forum
         </h2>
-        <span className="hidden text-[12px] text-[#6E6E73] sm:inline">AILT1001-2S</span>
+        <span className="hidden text-[12px] text-[#6E6E73] sm:inline">AILT1001-2SX</span>
       </div>
 
       <div className="flex items-center gap-3">

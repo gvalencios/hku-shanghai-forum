@@ -57,7 +57,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-white px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <p className="mb-1 text-[13px] font-medium text-[#6E6E73]">AILT1001-2S</p>
+          <p className="mb-1 text-[13px] font-medium text-[#6E6E73]">AILT1001-2SX</p>
           <h1 className="mb-1 text-[28px] font-semibold tracking-tight text-[#1D1D1F]">
             HKU Shanghai Forum
           </h1>
