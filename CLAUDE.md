@@ -39,6 +39,7 @@ npm run dev
 - ✅ Checkpoint matrix with Excel export + header tooltips
 - ✅ Accommodation section on student profiles (read-only for students, editable by TA)
 - ✅ Bulk accommodation import via `/api/admin/upload-accommodation`
+- ✅ Bulk trip-info import via `/api/admin/upload-trip-info` (Import Trip Info button on TA students page) — flights + visa status, optional columns
 - ✅ Add/Remove individual students via modals on TA students page
 - ✅ Student full name + profile link on TA report pages
 - ✅ TA student enhancements (Excel bulk import, student editing, list improvements)
@@ -107,10 +108,11 @@ Completed manual steps:
 
 ### Students (`/ta/students`)
 - Full student table with search, click row → student detail page (`/ta/students/[studentId]`)
-- **Action buttons** (above table): Add Student, Remove Student, Import Excel, Export Excel
+- **Action buttons** (above table): Add Student, Remove Student, Import Excel, Import Trip Info, Export Excel
   - **Add Student**: modal form for TA-managed fields → creates user + emailStudentMap docs
   - **Remove Student**: modal with search → select student → confirm deletion
   - **Import Excel**: modal with drag-and-drop upload, preview (added/deleted diff) → confirm → batch upsert/delete
+  - **Import Trip Info**: modal upload of an Excel keyed by HKU email; only the email column is required, all others optional. Flight columns → `departureFlight` (HKG→PVG) + `arrivalFlight` (PVG→HKG) + sets `flightTicketStatus: "purchased"`. `Visa Status` column → `visaStatus` (accepts labels/codes 1–4, mapped to not_started/in_progress/approved/not_required). Per-row, only fields present are updated (blank = no change). Updates existing students only — never adds/deletes; unmatched emails skipped. Parser: `src/lib/excel/parse-trip-info.ts`.
   - **Export Excel**: downloads all student data as .xlsx
 - Student detail page includes editable accommodation card and university info
 
@@ -134,13 +136,14 @@ Completed manual steps:
 - Per-block: title, body, category, published toggle, links (label + URL pairs), reorder up/down
 - Preview mode filtered by tab; arrows hidden on "All" tab
 
-## Routes (20 total)
+## Routes (21 total)
 ```
 /                                - Redirect to /dashboard or /login
 /login                           - HKU email + Student/Staff ID login form
 /api/login                       - Validate credentials, set JWT cookie
 /api/admin/upload-students       - Excel upload (preview + confirm modes)
 /api/admin/upload-accommodation  - Accommodation Excel upload
+/api/admin/upload-trip-info      - Trip info Excel upload: flights + visa (preview + confirm; updates existing users only)
 /api/admin/seed-info             - Seed info blocks (?force=true to re-seed)
 /dashboard                       - Role-based dashboard (student/TA)
 /profile                         - Student profile (TA fields read-only + edit own)

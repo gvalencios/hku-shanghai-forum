@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAllStudents, createStudent, deleteStudent } from "@/lib/firestore/users";
 import { ExcelUpload } from "@/components/students/ExcelUpload";
+import { TripInfoUpload } from "@/components/students/TripInfoUpload";
 import { StudentList } from "@/components/students/StudentList";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { Spinner } from "@/components/ui/Spinner";
@@ -25,6 +26,7 @@ export default function TAStudentsPage() {
 
   // Modal states
   const [showImport, setShowImport] = useState(false);
+  const [showImportTripInfo, setShowImportTripInfo] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
 
@@ -245,7 +247,7 @@ export default function TAStudentsPage() {
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           <Button variant="primary" size="md" onClick={() => setShowAdd(true)} className="w-full">
             Add Student
           </Button>
@@ -254,6 +256,9 @@ export default function TAStudentsPage() {
           </Button>
           <Button variant="secondary" size="md" onClick={() => setShowImport(true)} className="w-full">
             Import Excel
+          </Button>
+          <Button variant="secondary" size="md" onClick={() => setShowImportTripInfo(true)} disabled={students.length === 0} className="w-full">
+            Import Trip Info
           </Button>
           <Button
             variant="secondary"
@@ -293,6 +298,11 @@ export default function TAStudentsPage() {
       {/* Import Excel Modal */}
       <Modal open={showImport} onClose={() => setShowImport(false)} title="Import Student List" size="lg">
         <ExcelUpload onUploadComplete={() => { setShowImport(false); loadStudents(); }} />
+      </Modal>
+
+      {/* Import Trip Info Modal */}
+      <Modal open={showImportTripInfo} onClose={() => setShowImportTripInfo(false)} title="Import Trip Info (Flights + Visa)" size="lg">
+        <TripInfoUpload onUploadComplete={() => { setShowImportTripInfo(false); loadStudents(); }} />
       </Modal>
 
       {/* Add Student Modal */}
