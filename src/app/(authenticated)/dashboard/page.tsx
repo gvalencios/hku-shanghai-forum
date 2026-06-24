@@ -215,12 +215,19 @@ function TADashboard({
   const openReports = reports.filter((r) => r.status === "open" || r.status === "in_progress").length;
 
   // Checkpoint progress
+  // Only count check-ins from current students so the numerator and denominator
+  // use the same population. Orphan check-ins (the TA's own test check-ins,
+  // removed students whose check-ins linger, old seed data) would otherwise
+  // push progress above 100%.
+  const studentIds = new Set(students.map((s) => s.id));
   const nonRecurringIds = new Set(checkpoints.filter((cp) => !cp.isRecurring).map((cp) => cp.id));
   const totalPossible = students.length * nonRecurringIds.size;
   const uniqueCheckins = new Set(
-    checkins.filter((c) => nonRecurringIds.has(c.checkpointId)).map((c) => `${c.userId}:${c.checkpointId}`)
+    checkins
+      .filter((c) => studentIds.has(c.userId) && nonRecurringIds.has(c.checkpointId))
+      .map((c) => `${c.userId}:${c.checkpointId}`)
   ).size;
-  const progressPct = totalPossible > 0 ? Math.round((uniqueCheckins / totalPossible) * 100) : 0;
+  const progressPct = totalPossible > 0 ? Math.min(100, Math.round((uniqueCheckins / totalPossible) * 100)) : 0;
 
   return (
     <div>
