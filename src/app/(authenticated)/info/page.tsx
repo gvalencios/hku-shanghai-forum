@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getPublishedInfoBlocks } from "@/lib/firestore/info-blocks";
 import { getInfoCategories } from "@/lib/firestore/info-categories";
+import { getInfoHubHidden } from "@/lib/firestore/info-settings";
 import { type InfoCategory, type InfoBlock, type InfoCategoryDef } from "@/lib/types/info";
 import { Tabs } from "@/components/ui/Tabs";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -47,12 +48,18 @@ export default function StudentInfoPage() {
   const [blocks, setBlocks] = useState<InfoBlock[]>([]);
   const [categories, setCategories] = useState<InfoCategoryDef[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hidden, setHidden] = useState(false);
   const [category, setCategory] = useState<InfoCategory | "all">("all");
 
   useEffect(() => {
-    Promise.all([getPublishedInfoBlocks(), getInfoCategories()]).then(([data, cats]) => {
+    Promise.all([
+      getPublishedInfoBlocks(),
+      getInfoCategories(),
+      getInfoHubHidden(),
+    ]).then(([data, cats, isHidden]) => {
       setBlocks(data);
       setCategories(cats);
+      setHidden(isHidden);
       setLoading(false);
     });
   }, []);
@@ -80,6 +87,22 @@ export default function StudentInfoPage() {
     return (
       <div className="flex justify-center py-20">
         <Spinner />
+      </div>
+    );
+  }
+
+  if (hidden) {
+    return (
+      <div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold tracking-tight text-[#1D1D1F]">
+            Trip Information
+          </h1>
+        </div>
+        <EmptyState
+          title="Information isn't available yet"
+          description="Trip information will be published here soon. Please check back later."
+        />
       </div>
     );
   }

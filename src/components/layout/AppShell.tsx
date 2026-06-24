@@ -1,9 +1,10 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/hooks/use-auth";
+import { getInfoHubHidden } from "@/lib/firestore/info-settings";
 import { Header } from "./Header";
 import { cn } from "@/lib/utils/cn";
 
@@ -85,10 +86,20 @@ const NAV_ITEMS: NavItem[] = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { role } = useAuth();
+  const [infoHidden, setInfoHidden] = useState(false);
 
-  const filteredNav = NAV_ITEMS.filter(
-    (item) => !item.taOnly || role === "ta"
-  );
+  useEffect(() => {
+    getInfoHubHidden()
+      .then(setInfoHidden)
+      .catch(() => setInfoHidden(false));
+  }, []);
+
+  const filteredNav = NAV_ITEMS.filter((item) => {
+    if (item.taOnly && role !== "ta") return false;
+    // Students lose the Info link when the TA hides the Info Hub; TAs always keep it.
+    if (item.href === "/info" && role !== "ta" && infoHidden) return false;
+    return true;
+  });
 
   // For TA: remap some routes to TA-specific versions
   const getHref = (item: NavItem) => {

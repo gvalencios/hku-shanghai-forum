@@ -10,6 +10,7 @@ import {
   reorderInfoBlocks,
 } from "@/lib/firestore/info-blocks";
 import { getInfoCategories, saveInfoCategories } from "@/lib/firestore/info-categories";
+import { getInfoHubHidden, setInfoHubHidden } from "@/lib/firestore/info-settings";
 import { type InfoCategory, type InfoBlock, type InfoCategoryDef } from "@/lib/types/info";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -32,6 +33,8 @@ export default function TAInfoPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<InfoBlock | null>(null);
   const [filter, setFilter] = useState<InfoCategory | "all">("all");
+  const [hubHidden, setHubHidden] = useState(false);
+  const [togglingVisibility, setTogglingVisibility] = useState(false);
 
   // Block form state
   const [title, setTitle] = useState("");
@@ -47,11 +50,30 @@ export default function TAInfoPage() {
   const [savingSections, setSavingSections] = useState(false);
 
   const loadData = useCallback(async () => {
-    const [data, cats] = await Promise.all([getAllInfoBlocks(), getInfoCategories()]);
+    const [data, cats, isHidden] = await Promise.all([
+      getAllInfoBlocks(),
+      getInfoCategories(),
+      getInfoHubHidden(),
+    ]);
     setBlocks(data);
     setCategories(cats);
+    setHubHidden(isHidden);
     setLoading(false);
   }, []);
+
+  const handleToggleVisibility = async () => {
+    setTogglingVisibility(true);
+    const next = !hubHidden;
+    try {
+      await setInfoHubHidden(next);
+      setHubHidden(next);
+      toast(next ? "Info Hub hidden from students" : "Info Hub visible to students");
+    } catch {
+      toast("Failed to update visibility", "error");
+    } finally {
+      setTogglingVisibility(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -211,11 +233,24 @@ export default function TAInfoPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-[#1D1D1F]">
             Information Hub
           </h1>
-          <p className="mt-1 text-[15px] text-[#6E6E73]">
+          <p className="mt-1 flex items-center gap-2 text-[15px] text-[#6E6E73]">
             Manage info blocks visible to students
+            <Badge
+              variant={hubHidden ? "default" : "success"}
+              className="normal-case tracking-normal"
+            >
+              {hubHidden ? "Hidden from students" : "Visible to students"}
+            </Badge>
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={handleToggleVisibility}
+            loading={togglingVisibility}
+          >
+            {hubHidden ? "Make visible" : "Hide from students"}
+          </Button>
           <Button variant="secondary" onClick={() => setShowSections(true)}>
             Manage Sections
           </Button>
