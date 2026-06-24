@@ -35,7 +35,6 @@ export function ProfileView({ user }: ProfileViewProps) {
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field label="Family Name" value={user.familyNameEn} />
           <Field label="First Name" value={user.firstNameEn} />
-          <Field label="Chinese Name" value={user.fullChineseName} />
           <Field label="Gender" value={user.gender} />
           <Field label="Faculty" value={user.faculty} />
           <Field label="Student ID" value={user.studentId} />

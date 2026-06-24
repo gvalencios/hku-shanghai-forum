@@ -101,6 +101,7 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
 
+  const [fullChineseName, setFullChineseName] = useState(user.fullChineseName ?? "");
   const [flightTicketStatus, setFlightTicketStatus] = useState(user.flightTicketStatus ?? "");
   const [departureFlight, setDepartureFlight] = useState(
     user.departureFlight ?? { date: "", time: "", flightNumber: "" },
@@ -120,6 +121,7 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
     setSaving(true);
     try {
       const data: Partial<UserDocument> = {
+        fullChineseName,
         flightTicketStatus,
         departureFlight,
         arrivalFlight,
@@ -141,6 +143,21 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
 
   return (
     <div className="space-y-4">
+
+      {/* ── Personal Details ── */}
+      <Card>
+        <CardHeader>
+          <h3 className="text-[15px] font-semibold text-[#1D1D1F]">Personal Details</h3>
+        </CardHeader>
+        <CardContent>
+          <Input
+            label="Chinese Name"
+            placeholder="e.g. 陳大文"
+            value={fullChineseName}
+            onChange={(e) => setFullChineseName(e.target.value)}
+          />
+        </CardContent>
+      </Card>
 
       {/* ── Accommodation ── */}
       <Card>
