@@ -1,7 +1,7 @@
 # HKU Shanghai Forum - Trip Management
 
 ## Overview
-Trip management website for ~100 HKU students travelling to Shanghai (AILT1001-2S, March 2026). Two role-based views (Student / TA) covering: student profiles with Excel bulk import, trip checkpoint monitoring, incident/report system with TA triage, and an information hub.
+Trip management website for ~100 HKU students travelling to Shanghai (AILT1001-2SX, June–July 2026). Two role-based views (Student / TA) covering: student profiles with Excel bulk import, trip checkpoint monitoring, incident/report system with TA triage, and an information hub.
 
 ## Quick Start
 ```bash

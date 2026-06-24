@@ -14,8 +14,8 @@ export interface EmergencyContact {
 }
 
 export interface Accommodation {
-  checkInDate: string;   // e.g. "March 8, 12pm - 9pm"
-  checkOutDate: string;  // e.g. "March 14, by 12:00 noon"
+  checkInDate: string;   // e.g. "June 28, 14:00"
+  checkOutDate: string;  // e.g. "July 4, 12:00"
   roomType: string;      // "single" or "double"
   roomInfo: string;      // e.g. "Bldg 9, 705" (will be "TBC" initially)
   bookingConfirmation: string; // e.g. "20260304100"
