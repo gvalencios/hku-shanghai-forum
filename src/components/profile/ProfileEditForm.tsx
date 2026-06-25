@@ -109,6 +109,8 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
   const [arrivalFlight, setArrivalFlight] = useState(
     user.arrivalFlight ?? { date: "", time: "", flightNumber: "" },
   );
+  const [checkInDate, setCheckInDate] = useState(user.accommodation?.checkInDate ?? "");
+  const [checkOutDate, setCheckOutDate] = useState(user.accommodation?.checkOutDate ?? "");
   const [visaStatus, setVisaStatus] = useState(user.visaStatus ?? "");
   const [visaNotes, setVisaNotes] = useState(user.visaNotes ?? "");
   const [emergencyContact, setEmergencyContact] = useState(
@@ -122,6 +124,13 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
     try {
       const data: Partial<UserDocument> = {
         fullChineseName,
+        accommodation: {
+          checkInDate,
+          checkOutDate,
+          roomType: user.accommodation?.roomType ?? "",
+          roomInfo: user.accommodation?.roomInfo ?? "",
+          bookingConfirmation: user.accommodation?.bookingConfirmation ?? "",
+        },
         flightTicketStatus,
         departureFlight,
         arrivalFlight,
@@ -164,19 +173,25 @@ export function ProfileEditForm({ user, uid, onUpdate }: ProfileEditFormProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <h3 className="text-[15px] font-semibold text-[#1D1D1F]">Accommodation</h3>
-            <Badge variant="default">Managed by TA</Badge>
+            <Badge variant="default">Partially managed by TA</Badge>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input
+              label="Check-in"
+              placeholder="e.g. June 28, 14:00"
+              value={checkInDate}
+              onChange={(e) => setCheckInDate(e.target.value)}
+            />
+            <Input
+              label="Check-out"
+              placeholder="e.g. July 4, 12:00"
+              value={checkOutDate}
+              onChange={(e) => setCheckOutDate(e.target.value)}
+            />
+          </div>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <dt className="text-[12px] font-medium uppercase tracking-wider text-[#86868B]">Check-in</dt>
-              <dd className="mt-0.5 text-[15px] text-[#1D1D1F]">{user.accommodation?.checkInDate || "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-[12px] font-medium uppercase tracking-wider text-[#86868B]">Check-out</dt>
-              <dd className="mt-0.5 text-[15px] text-[#1D1D1F]">{user.accommodation?.checkOutDate || "—"}</dd>
-            </div>
             <div>
               <dt className="text-[12px] font-medium uppercase tracking-wider text-[#86868B]">Room Type</dt>
               <dd className="mt-0.5 text-[15px] text-[#1D1D1F]">
